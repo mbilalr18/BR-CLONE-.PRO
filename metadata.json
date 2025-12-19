@@ -1,0 +1,7 @@
+{
+  "name": "BR Clone Pro",
+  "description": "Professional tool for TikTok video transcription and AI voice cloning using advanced Gemini models.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
