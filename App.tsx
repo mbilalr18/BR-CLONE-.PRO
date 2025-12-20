@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppTab } from './types';
 import TranscriptTool from './components/TranscriptTool';
 import VoiceCloneTool from './components/VoiceCloneTool';
@@ -7,96 +7,101 @@ import PrivacyPolicy from './components/PrivacyPolicy';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<AppTab>(AppTab.TRANSCRIPT);
+  const [isPro, setIsPro] = useState<boolean>(() => {
+    return localStorage.getItem('isPro') === 'true';
+  });
+
+  const togglePro = () => {
+    const newState = !isPro;
+    setIsPro(newState);
+    localStorage.setItem('isPro', newState.toString());
+  };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col">
-      {/* Navbar */}
-      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab(AppTab.TRANSCRIPT)}>
-              <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-200">
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div>
-                <h1 className="text-xl font-black text-slate-900 tracking-tight">BR CLONE <span className="text-blue-600">PRO</span></h1>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">AI Content Studio</p>
-              </div>
-            </div>
-
-            <div className="flex bg-slate-100 p-1 rounded-2xl">
-              <button
-                onClick={() => setActiveTab(AppTab.TRANSCRIPT)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
-                  activeTab === AppTab.TRANSCRIPT
-                    ? 'bg-white text-blue-600 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-700'
-                }`}
-              >
-                <span className="hidden sm:inline">Transcript</span>
-                <span className="sm:hidden">📝</span>
-              </button>
-              <button
-                onClick={() => setActiveTab(AppTab.VOICE_CLONE)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
-                  activeTab === AppTab.VOICE_CLONE
-                    ? 'bg-white text-blue-600 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-700'
-                }`}
-              >
-                <span className="hidden sm:inline">Voice Clone</span>
-                <span className="sm:hidden">🎙️</span>
-              </button>
-              <button
-                onClick={() => setActiveTab(AppTab.PRIVACY)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
-                  activeTab === AppTab.PRIVACY
-                    ? 'bg-white text-blue-600 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-700'
-                }`}
-              >
-                <span className="hidden sm:inline">Privacy</span>
-                <span className="sm:hidden">🛡️</span>
-              </button>
-            </div>
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col pb-24">
+      {/* Top Bar - Minimal for APK */}
+      <header className="bg-white/90 backdrop-blur-md border-b border-slate-100 sticky top-0 z-40 px-6 py-4 flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white">
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" />
+            </svg>
           </div>
+          <h1 className="text-lg font-black tracking-tight text-slate-900">
+            BR CLONE <span className="text-blue-600">{isPro ? 'PRO+' : 'PRO'}</span>
+          </h1>
         </div>
-      </nav>
+        
+        <button 
+          onClick={togglePro}
+          className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all shadow-sm ${
+            isPro 
+            ? 'bg-emerald-500 text-white' 
+            : 'bg-amber-100 text-amber-700 border border-amber-200'
+          }`}
+        >
+          {isPro ? 'Pro Active' : 'Go Pro (Ad-Free)'}
+        </button>
+      </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8 flex-grow w-full">
+      <main className="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
         {activeTab !== AppTab.PRIVACY && (
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-black text-slate-900 mb-3 tracking-tight">
-              {activeTab === AppTab.TRANSCRIPT ? 'TikTok & YouTube Transcript Tool' : 'Pro Voice Cloning'}
+          <div className="mb-8 px-2">
+            <h2 className="text-2xl font-black text-slate-900 mb-1">
+              {activeTab === AppTab.TRANSCRIPT ? 'Video Transcript' : 'AI Voice Lab'}
             </h2>
-            <p className="text-slate-500 text-lg max-w-2xl mx-auto">
+            <p className="text-slate-500 text-sm">
               {activeTab === AppTab.TRANSCRIPT 
-                ? 'Paste a link to any TikTok or YouTube video and get a professional-grade transcript with precision timestamps in seconds.' 
-                : 'Upload a 10-30 second audio sample and our AI will clone your voice with incredible accuracy and emotion.'}
+                ? 'Extract accurate text from any social video.' 
+                : 'Clone voices with professional precision.'}
             </p>
           </div>
         )}
 
-        {activeTab === AppTab.TRANSCRIPT && <TranscriptTool />}
-        {activeTab === AppTab.VOICE_CLONE && <VoiceCloneTool />}
+        {activeTab === AppTab.TRANSCRIPT && <TranscriptTool isPro={isPro} />}
+        {activeTab === AppTab.VOICE_CLONE && <VoiceCloneTool isPro={isPro} />}
         {activeTab === AppTab.PRIVACY && <PrivacyPolicy />}
       </main>
 
-      {/* Footer */}
-      <footer className="mt-auto border-t border-slate-200 py-10 bg-white">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <p className="text-slate-400 text-sm font-medium mb-2">© 2024 BR Clone Pro Studio. Powered by Gemini AI.</p>
-          <button 
-            onClick={() => setActiveTab(AppTab.PRIVACY)}
-            className="text-blue-600 hover:underline text-xs font-bold uppercase tracking-widest"
-          >
-            Privacy Policy
-          </button>
-        </div>
-      </footer>
+      {/* Bottom Navigation - Standard for Apps */}
+      <nav className="fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 flex justify-around items-center px-4 py-3 safe-bottom z-50 shadow-[0_-4px_20px_-5px_rgba(0,0,0,0.05)]">
+        <button
+          onClick={() => setActiveTab(AppTab.TRANSCRIPT)}
+          className={`flex flex-col items-center gap-1 transition-all ${
+            activeTab === AppTab.TRANSCRIPT ? 'text-blue-600 scale-110' : 'text-slate-400'
+          }`}
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <span className="text-[10px] font-bold uppercase">Extract</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab(AppTab.VOICE_CLONE)}
+          className={`flex flex-col items-center gap-1 transition-all ${
+            activeTab === AppTab.VOICE_CLONE ? 'text-blue-600 scale-110' : 'text-slate-400'
+          }`}
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+          </svg>
+          <span className="text-[10px] font-bold uppercase">Clone</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab(AppTab.PRIVACY)}
+          className={`flex flex-col items-center gap-1 transition-all ${
+            activeTab === AppTab.PRIVACY ? 'text-blue-600 scale-110' : 'text-slate-400'
+          }`}
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+          <span className="text-[10px] font-bold uppercase">Privacy</span>
+        </button>
+      </nav>
     </div>
   );
 };
